@@ -18,6 +18,7 @@ int main() {
         printf("prev[%d] -- element -- next[%d]\n", i, i);
         printf("%7d                 %5d\n\n", list1.nodes[i].prev, list1.nodes[i].next);
     }
+    list1.nodes[7].next = 16;
     MakeDotFile(&list1, "./graphs/training3.dot");
     ListDump(&list1, "./dumps/dumplist.txt", "./graphs/training3.dot");
     return 0;

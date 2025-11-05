@@ -151,7 +151,7 @@ ListErr ListVerifyDeep(const List * list, list_error_storage_type * err) {
     if (flag) return LIST_WAS_ERROR;
     return LIST_NO_ERROR;
 }
-
+//free / free+next = cap
 ListErr MakeDotFile (const List * list, const char * file_way) {
     if (list == NULL) {
         printf("ERROR: list NULL pointer %s:%d\n", __FILE__, __LINE__);
@@ -169,6 +169,8 @@ ListErr MakeDotFile (const List * list, const char * file_way) {
     //НАЧАЛО ЗАПИСИ В ФАЙЛ ДЛЯ ГРАФА
     fprintf(dot_file, "digraph list {\n");
     fprintf(dot_file, "    rankdir=LR;\n");
+    fprintf(dot_file, "    node [shape=star , style=filled, fillcolor=red, color=red]\n");
+    fprintf(dot_file, "    illigal_node\n");/////////////////
     fprintf(dot_file, "\n");
 
     for (int i = 1; i < list->capacity; i++) {
@@ -179,17 +181,37 @@ ListErr MakeDotFile (const List * list, const char * file_way) {
         }
         fprintf(dot_file, ", label=\"<index> index = %d | <value> value = %lf | {<prev> prev = %d | <next> next = %d }\"]\n", i, list->nodes[i].data, list->nodes[i].prev, list->nodes[i].next);
     }
+    for (int i = 0; i < list->capacity-1; i++) {
+        fprintf(dot_file, "    Node_%d -> Node_%d [style=invis]\n", i, i+1);
+    }
+
+    fprintf(dot_file, "    Node_0 [shape = Mrecord, fillcolor=grey, label=\"<index> index = %d | <value> ZERO ELEMENT | {<prev> TAIL = %d | <next> HEAD = %d }\"]\n", 0, list->nodes[0].prev, list->nodes[0].next);
+
+
     fprintf(dot_file, "\n");
     fprintf(dot_file, "    subgraph Main_Index {\n");
     fprintf(dot_file, "        rankdir=TB;\n");
-    fprintf(dot_file, "        Head [shape = Mrecord, label=\"Head = %d\"]\n", list->nodes[0].next);
-    fprintf(dot_file, "        Tail [shape = Mrecord, label=\"Tail = %d\"]\n", list->nodes[0].prev);
-    fprintf(dot_file, "        Free [shape = Mrecord, label=\"Free = %d\"]\n", list->free);
-    fprintf(dot_file, "        Head -> Node_%d\n", list->nodes[0].next);
-    fprintf(dot_file, "        Free -> Node_%d\n", list->free);
-    fprintf(dot_file, "        Tail -> Node_%d\n", list->nodes[0].prev);
+    fprintf(dot_file, "        Head [shape = Mrecord, fillcolor = grey, label=\"Head = %d\"]\n", list->nodes[0].next);
+    fprintf(dot_file, "        Tail [shape = Mrecord, fillcolor = grey, label=\"Tail = %d\"]\n", list->nodes[0].prev);
+    fprintf(dot_file, "        Free [shape = Mrecord, fillcolor = grey, label=\"Free = %d\"]\n", list->free);
+    fprintf(dot_file, "        Head -> Node_%d:index\n", list->nodes[0].next);
+    fprintf(dot_file, "        Free -> Node_%d:index\n", list->free);
+    fprintf(dot_file, "        Tail -> Node_%d:index\n", list->nodes[0].prev);
     fprintf(dot_file, "    }\n");
     
+    for (int i = 1; i < list->capacity; i++) {
+        if (list->nodes[list->nodes[i].next].prev == i) {
+            fprintf(dot_file, "    Node_%d -> Node_%d [color=blue, dir=both]\n", i, list->nodes[i].next);
+        }
+        if (list->nodes[list->nodes[i].next].prev != i) {
+            fprintf(dot_file, "    Node_%d:next -> Node_%d:prev [color=green]\n", i, list->nodes[i].next);
+        }
+        if (list->nodes[i].prev == -1) continue;
+        if (list->nodes[list->nodes[i].prev].next != i) {
+            fprintf(dot_file, "    Node_%d:prev -> Node_%d:next [color=red]\n", i, list->nodes[i].prev);
+        }
+    }
+    /*
     for (int i = list->nodes[0].next; list->nodes[i].next != 0; i = list->nodes[i].next) {
         fprintf(dot_file, "    Node_%d:next -> Node_%d:prev\n", i, list->nodes[i].next);
         fprintf(dot_file, "    Node_%d:prev -> Node_%d:next\n", list->nodes[i].next, i);
@@ -197,6 +219,7 @@ ListErr MakeDotFile (const List * list, const char * file_way) {
     for (int i = list->free; list->nodes[i].next != 0; i = list->nodes[i].next) {
         fprintf(dot_file, "    Node_%d -> Node_%d [style=invis]\n", i, list->nodes[i].next);
     }
+    */
     //запись связей для корректной последовательности
     fprintf(dot_file, "    Node_%d", 1);
     for (int i = 2; i < list->capacity; i++) {
@@ -315,20 +338,20 @@ ListErr ListResize(List * list, int new_capacity, list_error_storage_type * err)
     return LIST_NO_ERROR;
 }
 
-ListErr ListInsertAfter(List * list, int index, double value, list_error_storage_type * err) {
+int ListInsertAfter(List * list, int index, double value, list_error_storage_type * err) {
     if (ListVerifyBasic(list, err) != LIST_NO_ERROR) {
-        return LIST_WAS_ERROR;
+        return -1;
     }
 
     if (index < 0 || index >= list->capacity || (index != 0 && list->nodes[index].prev == -1)) {
         printf("ERROR: invalid index %s:%d\n", __FILE__, __LINE__);
-        return LIST_WAS_ERROR;
+        return -1;
     }
 
     if (list->free == 0) {
         if (ListResize(list, list->capacity * 2, err) != LIST_NO_ERROR) {
             printf("ERROR: list resize error %s:%d\n", __FILE__, __LINE__);
-            return LIST_WAS_ERROR;
+            return -1;
         }
     }
 
@@ -349,8 +372,18 @@ ListErr ListInsertAfter(List * list, int index, double value, list_error_storage
     list->nodes[index].next = free_index;
 
     list->size++;
-    return LIST_NO_ERROR;
+    return free_index;
 }
+int ListInsertBefore(List * list, int index, double value, list_error_storage_type * err) {
+    return ListInsertAfter(list, index - 1, value, err);
+}
+int ListInsertBegin(List * list, double value, list_error_storage_type * err) {
+    return ListInsertAfter(list, 0, value, err);
+}
+int ListInsertEnd(List * list, double value, list_error_storage_type * err) {
+    return ListInsertAfter(list, list->nodes[0].prev, value, err);
+}
+
 
 ListErr ListPop(List * list, int physical_index, double * res, list_error_storage_type * err) {
     if (ListVerifyBasic(list, err) != LIST_NO_ERROR) {

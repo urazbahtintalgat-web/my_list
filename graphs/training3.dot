@@ -1,5 +1,7 @@
 digraph list {
     rankdir=LR;
+    node [shape=star , style=filled, fillcolor=red, color=red]
+    illigal_node
 
     Node_1 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 1 | <value> value = 1.000000 | {<prev> prev = 0 | <next> next = 2 }"]
     Node_2 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 2 | <value> value = 2.000000 | {<prev> prev = 1 | <next> next = 3 }"]
@@ -7,7 +9,7 @@ digraph list {
     Node_4 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 4 | <value> value = 4.000000 | {<prev> prev = 3 | <next> next = 5 }"]
     Node_5 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 5 | <value> value = 5.000000 | {<prev> prev = 4 | <next> next = 6 }"]
     Node_6 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 6 | <value> value = 6.000000 | {<prev> prev = 5 | <next> next = 7 }"]
-    Node_7 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 7 | <value> value = 7.000000 | {<prev> prev = 6 | <next> next = 8 }"]
+    Node_7 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 7 | <value> value = 7.000000 | {<prev> prev = 6 | <next> next = 16 }"]
     Node_8 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 8 | <value> value = 8.000000 | {<prev> prev = 7 | <next> next = 9 }"]
     Node_9 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 9 | <value> value = 9.000000 | {<prev> prev = 8 | <next> next = 10 }"]
     Node_10 [shape = Mrecord, style=filled, fillcolor=lightblue, label="<index> index = 10 | <value> value = 10.000000 | {<prev> prev = 9 | <next> next = 0 }"]
@@ -20,34 +22,17 @@ digraph list {
     Node_17 [shape = Mrecord, style=filled, fillcolor=grey, label="<index> index = 17 | <value> value = 0.000000 | {<prev> prev = -1 | <next> next = 18 }"]
     Node_18 [shape = Mrecord, style=filled, fillcolor=grey, label="<index> index = 18 | <value> value = 0.000000 | {<prev> prev = -1 | <next> next = 19 }"]
     Node_19 [shape = Mrecord, style=filled, fillcolor=grey, label="<index> index = 19 | <value> value = 0.000000 | {<prev> prev = -1 | <next> next = 0 }"]
-
-    subgraph Main_Index {
-        rankdir=TB;
-        Head [shape = Mrecord, label="Head = 1"]
-        Tail [shape = Mrecord, label="Tail = 10"]
-        Free [shape = Mrecord, label="Free = 11"]
-        Head -> Node_1
-        Free -> Node_11
-        Tail -> Node_10
-    }
-    Node_1:next -> Node_2:prev
-    Node_2:prev -> Node_1:next
-    Node_2:next -> Node_3:prev
-    Node_3:prev -> Node_2:next
-    Node_3:next -> Node_4:prev
-    Node_4:prev -> Node_3:next
-    Node_4:next -> Node_5:prev
-    Node_5:prev -> Node_4:next
-    Node_5:next -> Node_6:prev
-    Node_6:prev -> Node_5:next
-    Node_6:next -> Node_7:prev
-    Node_7:prev -> Node_6:next
-    Node_7:next -> Node_8:prev
-    Node_8:prev -> Node_7:next
-    Node_8:next -> Node_9:prev
-    Node_9:prev -> Node_8:next
-    Node_9:next -> Node_10:prev
-    Node_10:prev -> Node_9:next
+    Node_0 -> Node_1 [style=invis]
+    Node_1 -> Node_2 [style=invis]
+    Node_2 -> Node_3 [style=invis]
+    Node_3 -> Node_4 [style=invis]
+    Node_4 -> Node_5 [style=invis]
+    Node_5 -> Node_6 [style=invis]
+    Node_6 -> Node_7 [style=invis]
+    Node_7 -> Node_8 [style=invis]
+    Node_8 -> Node_9 [style=invis]
+    Node_9 -> Node_10 [style=invis]
+    Node_10 -> Node_11 [style=invis]
     Node_11 -> Node_12 [style=invis]
     Node_12 -> Node_13 [style=invis]
     Node_13 -> Node_14 [style=invis]
@@ -56,5 +41,36 @@ digraph list {
     Node_16 -> Node_17 [style=invis]
     Node_17 -> Node_18 [style=invis]
     Node_18 -> Node_19 [style=invis]
+    Node_0 [shape = Mrecord, fillcolor=grey, label="<index> index = 0 | <value> ZERO ELEMENT | {<prev> TAIL = 10 | <next> HEAD = 1 }"]
+
+    subgraph Main_Index {
+        rankdir=TB;
+        Head [shape = Mrecord, fillcolor = grey, label="Head = 1"]
+        Tail [shape = Mrecord, fillcolor = grey, label="Tail = 10"]
+        Free [shape = Mrecord, fillcolor = grey, label="Free = 11"]
+        Head -> Node_1:index
+        Free -> Node_11:index
+        Tail -> Node_10:index
+    }
+    Node_1 -> Node_2 [color=blue, dir=both]
+    Node_2 -> Node_3 [color=blue, dir=both]
+    Node_3 -> Node_4 [color=blue, dir=both]
+    Node_4 -> Node_5 [color=blue, dir=both]
+    Node_5 -> Node_6 [color=blue, dir=both]
+    Node_6 -> Node_7 [color=blue, dir=both]
+    Node_7:next -> Node_16:prev [color=green]
+    Node_8 -> Node_9 [color=blue, dir=both]
+    Node_8:prev -> Node_7:next [color=red]
+    Node_9 -> Node_10 [color=blue, dir=both]
+    Node_10 -> Node_0 [color=blue, dir=both]
+    Node_11:next -> Node_12:prev [color=green]
+    Node_12:next -> Node_13:prev [color=green]
+    Node_13:next -> Node_14:prev [color=green]
+    Node_14:next -> Node_15:prev [color=green]
+    Node_15:next -> Node_16:prev [color=green]
+    Node_16:next -> Node_17:prev [color=green]
+    Node_17:next -> Node_18:prev [color=green]
+    Node_18:next -> Node_19:prev [color=green]
+    Node_19:next -> Node_0:prev [color=green]
     Node_1 -> Node_2 -> Node_3 -> Node_4 -> Node_5 -> Node_6 -> Node_7 -> Node_8 -> Node_9 -> Node_10 [style=invis]
 }

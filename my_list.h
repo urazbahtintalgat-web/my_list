@@ -57,7 +57,10 @@ ListErr ListVerifyDeep (const List * list, list_error_storage_type * err = NULL)
 
 ListErr ListResize(List * list, int new_capacity, list_error_storage_type * err = NULL);
 
-ListErr ListInsertAfter(List * list, int index, double value, list_error_storage_type * err);
+int ListInsertAfter (List * list, int index, double value, list_error_storage_type * err);
+int ListInsertBefore(List * list, int index, double value, list_error_storage_type * err);
+int ListInsertBegin (List * list,            double value, list_error_storage_type * err);
+int ListInsertEnd   (List * list,            double value, list_error_storage_type * err);
 ListErr ListPop(List * list, int physical_index, double * res, list_error_storage_type * err);
 
 ListErr MakeDotFile (const List * list, const char * file_way);
